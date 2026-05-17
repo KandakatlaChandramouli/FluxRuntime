@@ -1,0 +1,2 @@
+FAIL	github.com/research/phase1a/internal/workerpool [setup failed]
+FAIL

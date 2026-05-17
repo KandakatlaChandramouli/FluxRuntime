@@ -1,0 +1,147 @@
+package workerpool
+
+import (
+	"context"
+	"errors"
+	"strconv"
+	"time"
+
+	"github.com/research/phase1a/internal/inventory"
+	"github.com/research/phase1a/internal/telemetry"
+)
+
+// ErrQueueFull is re-exported here so dispatcher.go has a single import point.
+var ErrQueueFull = inventory.ErrQueueFull
+
+// worker drains a single shard's queue sequentially.
+// One goroutine per worker; spawned once at startup; never recreated.
+//
+// Forbidden inside this loop (per spec §5.6):
+//   - go func()          — scheduler amplification
+//   - append()           — heap growth
+//   - fmt.Sprintf        — allocations
+//   - reflection         — unpredictable behavior
+//   - JSON serialization — allocation-heavy
+//   - map allocations    — GC amplification
+func worker(
+	shard *Shard,
+	store *inventory.Store,
+	metrics *telemetry.Metrics,
+	stopCh <-chan struct{},
+) {
+	// Scratch buffer owned by this goroutine; never shared.
+	// Reused across iterations to avoid per-request heap allocation.
+	var keyBuf [128]byte
+	buf := keyBuf[:0]
+
+	shardIDStr := shardLabel(shard.ID)
+
+	for {
+		select {
+		case <-stopCh:
+			return
+
+		case req := <-shard.queue:
+			start := time.Now()
+
+			reservationID := inventory.NextReservationID()
+			nowNs := start.UnixNano()
+
+			err := store.Reserve(
+				req.Ctx,
+				req.EventID,
+				req.Quantity,
+				reservationID,
+				shard.ID,
+				buf,
+			)
+
+			shard.Counters.TotalProcessed.Add(1)
+
+			latencyNs := time.Since(start).Nanoseconds()
+			latencySec := float64(latencyNs) / 1e9
+
+			statusLabel := labelFor(err)
+
+			metrics.ReservationLatency.WithLabelValues(statusLabel).Observe(latencySec)
+			metrics.RedisRTT.Observe(latencySec)
+
+			if errors.Is(err, inventory.ErrInventoryExhausted) {
+				metrics.OversellAttempts.Inc()
+			}
+
+			metrics.WorkerQueueDepth.WithLabelValues(shardIDStr).Set(float64(len(shard.queue)))
+
+			telemetry.LogReservation(
+				nowNs,
+				shard.ID,
+				shard.ID,
+				req.EventID,
+				reservationID,
+				latencyNs,
+				grpcStatusCode(err),
+			)
+
+			result := ReservationResult{
+				Err:           err,
+				TimestampNs:   nowNs,
+				ReservationID: reservationID,
+			}
+
+			// Non-blocking send; handler may have already timed out.
+			select {
+			case req.ResponseCh <- result:
+			default:
+			}
+		}
+	}
+}
+
+// labelFor maps a hot-path error to a fixed Prometheus label string.
+// All strings are compile-time constants — no allocation.
+func labelFor(err error) string {
+	if err == nil {
+		return "success"
+	}
+	if errors.Is(err, inventory.ErrInventoryExhausted) {
+		return "exhausted"
+	}
+	if errors.Is(err, inventory.ErrInventoryMissing) {
+		return "missing"
+	}
+	return "internal"
+}
+
+// grpcStatusCode maps errors to gRPC integer status codes per spec §10.
+func grpcStatusCode(err error) int {
+	if err == nil {
+		return 0 // OK
+	}
+	if errors.Is(err, inventory.ErrInventoryExhausted) {
+		return 9 // FailedPrecondition
+	}
+	if errors.Is(err, inventory.ErrInventoryMissing) {
+		return 5 // NotFound
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return 4 // DeadlineExceeded
+	}
+	return 13 // Internal
+}
+
+// shardLabelTable maps shard IDs 0–63 to pre-allocated label strings.
+// Built once at init time via strconv.Itoa; never written on the hot path.
+var shardLabelTable [64]string
+
+func init() {
+	for i := range shardLabelTable {
+		shardLabelTable[i] = strconv.Itoa(i)
+	}
+}
+
+func shardLabel(id int) string {
+	if id >= 0 && id < len(shardLabelTable) {
+		return shardLabelTable[id]
+	}
+	return "unknown"
+}

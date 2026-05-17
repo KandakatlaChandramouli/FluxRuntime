@@ -1,0 +1,46 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/research/phase1a/internal/workerpool
+cpu: Apple M1
+BenchmarkPressureMatrix/workers_2-8         	 6562213	       180.6 ns/op	     15069 completed	     19166 dispatched	   6543047 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_2-8         	 6689523	       180.7 ns/op	     14657 completed	     18754 dispatched	   6670769 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_2-8         	 6556045	       196.3 ns/op	     11458 completed	     15555 dispatched	   6540490 rejected	       0 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_2-8         	 6078596	       189.8 ns/op	     11900 completed	     15996 dispatched	   6062600 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_2-8         	 5369506	       187.8 ns/op	     10765 completed	     14862 dispatched	   5354644 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_2-8         	 6839601	       181.4 ns/op	     14870 completed	     18967 dispatched	   6820634 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_2-8         	 6677283	       178.6 ns/op	     14567 completed	     18664 dispatched	   6658619 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_2-8         	 6668322	       178.9 ns/op	     14504 completed	     18601 dispatched	   6649721 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_2-8         	 6643368	       179.3 ns/op	     14735 completed	     18831 dispatched	   6624537 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_2-8         	 6611018	       179.3 ns/op	     14339 completed	     18436 dispatched	   6592582 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_4-8         	 6435668	       183.1 ns/op	     13948 completed	     18045 dispatched	   6417623 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_4-8         	 6544896	       184.5 ns/op	     14453 completed	     18550 dispatched	   6526346 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_4-8         	 6559443	       183.2 ns/op	     14248 completed	     18344 dispatched	   6541099 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_4-8         	 6503221	       183.9 ns/op	     14054 completed	     18151 dispatched	   6485070 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_4-8         	 6501174	       183.7 ns/op	     14219 completed	     18315 dispatched	   6482859 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_4-8         	 6528627	       183.7 ns/op	     14294 completed	     18390 dispatched	   6510237 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_4-8         	 6508554	       183.5 ns/op	     14133 completed	     18230 dispatched	   6490324 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_4-8         	 6566571	       184.2 ns/op	     14245 completed	     18342 dispatched	   6548229 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_4-8         	 6415281	       184.7 ns/op	     14149 completed	     18245 dispatched	   6397036 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_4-8         	 6436479	       184.0 ns/op	     14124 completed	     18221 dispatched	   6418258 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_8-8         	 6122629	       197.5 ns/op	     13212 completed	     17309 dispatched	   6105320 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_8-8         	 6146818	       195.7 ns/op	     13350 completed	     17447 dispatched	   6129371 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_8-8         	 6039075	       196.2 ns/op	     13023 completed	     17120 dispatched	   6021955 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_8-8         	 5996061	       196.7 ns/op	     13007 completed	     17104 dispatched	   5978957 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_8-8         	 6061771	       195.4 ns/op	     13100 completed	     17197 dispatched	   6044574 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_8-8         	 6077894	       197.0 ns/op	     13410 completed	     17507 dispatched	   6060387 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_8-8         	 6123868	       193.6 ns/op	     13205 completed	     17302 dispatched	   6106566 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_8-8         	 5956138	       196.4 ns/op	     12854 completed	     16951 dispatched	   5939187 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_8-8         	 6097987	       194.3 ns/op	     13076 completed	     17173 dispatched	   6080814 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_8-8         	 6086044	       196.1 ns/op	     13081 completed	     17178 dispatched	   6068866 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_16-8        	 5370553	       221.0 ns/op	     11054 completed	     15151 dispatched	   5355402 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_16-8        	 5431922	       221.5 ns/op	     11349 completed	     15446 dispatched	   5416476 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_16-8        	 5429690	       222.4 ns/op	     11424 completed	     15521 dispatched	   5414169 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_16-8        	 5369260	       222.1 ns/op	     11106 completed	     15202 dispatched	   5354058 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_16-8        	 5391093	       222.7 ns/op	     11157 completed	     15254 dispatched	   5375839 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_16-8        	 5409351	       226.0 ns/op	     11557 completed	     15655 dispatched	   5393696 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_16-8        	 5180295	       222.4 ns/op	     10923 completed	     15020 dispatched	   5165275 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_16-8        	 5381851	       220.7 ns/op	     11131 completed	     15227 dispatched	   5366624 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_16-8        	 5363524	       221.8 ns/op	     11343 completed	     15440 dispatched	   5348084 rejected	       1 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_16-8        	 5351276	       220.2 ns/op	     11193 completed	     15290 dispatched	   5335986 rejected	       1 B/op	       0 allocs/op
+PASS
+ok  	github.com/research/phase1a/internal/workerpool	56.386s

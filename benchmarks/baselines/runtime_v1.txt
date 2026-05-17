@@ -1,0 +1,22 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/research/phase1a/internal/workerpool
+cpu: Apple M1
+BenchmarkDispatchHotKey-8            	54853797	        18.88 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDispatchColdKeys-8          	62498916	        19.10 ns/op	       0 B/op	       0 allocs/op
+BenchmarkSaturatedDispatch-8         	63394790	        19.44 ns/op	       0 B/op	       0 allocs/op
+BenchmarkShardRouting-8              	213015891	         5.893 ns/op	       0 B/op	       0 allocs/op
+BenchmarkShardRoutingInlined-8       	288745280	         4.158 ns/op	       0 B/op	       0 allocs/op
+BenchmarkAtomicCounters-8            	29428503	        41.73 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueEnqueue-8              	41891944	        27.78 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLiveReservationHotKey-8     	    2388	    443961 ns/op	      2388 dispatched	         0 rejected	     912 B/op	      24 allocs/op
+BenchmarkLiveReservationColdKeys-8   	       2	1326279271 ns/op	         2.000 dispatched	         0 rejected	  442776 B/op	    5598 allocs/op
+BenchmarkRedisReserveOnly-8          	     116	  10172477 ns/op	    4388 B/op	      52 allocs/op
+BenchmarkWorkerDrainExecution-8      	     456	   2582358 ns/op	       456.0 executed	         0 rejected	    1489 B/op	      24 allocs/op
+BenchmarkPressureHotKey-8            	11764364	       102.2 ns/op	      7360 completed	     11456 dispatched	      4096 max_watermark	  11752908 rejected	  11764364 shard_ingested	  11752908 shard_rejected	       0 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_2-8  	12499554	        98.45 ns/op	      7232 completed	     11392 dispatched	  12488162 rejected	       0 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_4-8  	12215905	       102.4 ns/op	      7616 completed	     11776 dispatched	  12204129 rejected	       0 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_8-8  	12107692	        97.91 ns/op	      7168 completed	     11328 dispatched	  12096364 rejected	       0 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_16-8 	12081453	       100.1 ns/op	      7104 completed	     11264 dispatched	  12070189 rejected	       0 B/op	       0 allocs/op
+PASS
+ok  	github.com/research/phase1a/internal/workerpool	26.962s

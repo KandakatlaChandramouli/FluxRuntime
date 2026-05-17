@@ -1,0 +1,6 @@
+--- FAIL: BenchmarkLiveReservationColdKeys
+    live_benchmark_test.go:248: Redis unreachable at localhost:6379: dial tcp [::1]:6379: connect: connection refused
+FAIL
+exit status 1
+FAIL	github.com/research/phase1a/internal/workerpool	0.355s
+FAIL

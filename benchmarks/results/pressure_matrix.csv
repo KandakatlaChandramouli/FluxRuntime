@@ -1,0 +1,51 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/research/phase1a/internal/workerpool
+cpu: Apple M1
+,benchmarks/results/pressure_matrix.txt,
+,sec/op,CI
+PressureMatrix/workers_2-8,1.8065000000000002e-07,5%
+PressureMatrix/workers_4-8,1.8380000000000002e-07,0%
+PressureMatrix/workers_8-8,1.9615000000000002e-07,1%
+PressureMatrix/workers_16-8,2.2195e-07,1%
+geomean,1.9498748321503313e-07,
+
+,benchmarks/results/pressure_matrix.txt,
+,completed,CI
+PressureMatrix/workers_2-8,14535.5,21%
+PressureMatrix/workers_4-8,14184,1%
+PressureMatrix/workers_8-8,13090.5,2%
+PressureMatrix/workers_16-8,11175,2%
+geomean,13178.261351120062,
+
+,benchmarks/results/pressure_matrix.txt,
+,dispatched,CI
+PressureMatrix/workers_2-8,18632.5,17%
+PressureMatrix/workers_4-8,18280,1%
+PressureMatrix/workers_8-8,17187.5,2%
+PressureMatrix/workers_16-8,15272,2%
+geomean,17291.751552180856,
+
+,benchmarks/results/pressure_matrix.txt,
+,rejected,CI
+PressureMatrix/workers_2-8,6.6085595e+06,8%
+PressureMatrix/workers_4-8,6.487697e+06,1%
+PressureMatrix/workers_8-8,6.0646265e+06,1%
+PressureMatrix/workers_16-8,5.361013e+06,1%
+geomean,6.110293487956371e+06,
+
+,benchmarks/results/pressure_matrix.txt,
+,B/op,CI
+PressureMatrix/workers_2-8,1,0%
+PressureMatrix/workers_4-8,1,0%
+PressureMatrix/workers_8-8,1,0%
+PressureMatrix/workers_16-8,1,0%
+geomean,1,
+
+,benchmarks/results/pressure_matrix.txt,
+,allocs/op,CI
+PressureMatrix/workers_2-8,0,0%
+PressureMatrix/workers_4-8,0,0%
+PressureMatrix/workers_8-8,0,0%
+PressureMatrix/workers_16-8,0,0%
+geomean,,

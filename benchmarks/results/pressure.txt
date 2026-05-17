@@ -1,0 +1,6 @@
+--- FAIL: BenchmarkPressureHotKey
+    pressure_benchmark_test.go:61: inventory.NewStore: dial tcp [::1]:6379: connect: connection refused
+FAIL
+exit status 1
+FAIL	github.com/research/phase1a/internal/workerpool	0.442s
+FAIL

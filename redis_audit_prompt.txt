@@ -1,0 +1,620 @@
+You are acting as a hostile low-level distributed systems performance reviewer.
+
+This is NOT a redesign task.
+
+This is NOT a feature-generation task.
+
+You are forbidden from inventing abstractions, APIs, wrappers, or alternate architectures.
+
+Your ONLY responsibility is to perform an adversarial hot-path performance audit against the REAL existing implementation.
+
+The system already experimentally validated:
+- deterministic bounded queues
+- non-blocking rejection
+- zero-allocation dispatch
+- zero-allocation shard routing
+- zero-allocation queue enqueue
+- stable hot-key contention behavior
+
+Microbenchmark results already achieved:
+- BenchmarkDispatchHotKey: 13.24 ns/op, 0 allocs/op
+- BenchmarkDispatchColdKeys: 13.59 ns/op, 0 allocs/op
+- BenchmarkSaturatedDispatch: 13.99 ns/op, 0 allocs/op
+- BenchmarkShardRouting: 5.009 ns/op, 0 allocs/op
+- BenchmarkAtomicCounters: 42.31 ns/op, 0 allocs/op
+
+Your job is to determine whether the Redis coordination layer breaks these guarantees.
+==================================================
+REAL FILE: internal/inventory/redis.go
+==================================================
+package inventory
+
+import (
+	"context"
+	"strconv"
+	"time"
+
+	"github.com/redis/go-redis/v9"
+)
+
+// Store holds the Redis client and the preloaded Lua SHA1 digest.
+// sha1 is written once at startup and read-only on the hot path.
+type Store struct {
+	client *redis.Client
+	sha1   string
+}
+
+// NewStore constructs a Store and preloads the Lua script.
+// Blocks until SCRIPT LOAD succeeds or ctx is cancelled.
+func NewStore(ctx context.Context, addr, password string, db int) (*Store, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr:         addr,
+		Password:     password,
+		DB:           db,
+		PoolSize:     64,
+		MinIdleConns: 16,
+		DialTimeout:  2 * time.Second,
+		ReadTimeout:  2 * time.Second,
+		WriteTimeout: 2 * time.Second,
+	})
+
+	sha1, err := client.ScriptLoad(ctx, luaReservationScript).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Store{client: client, sha1: sha1}, nil
+}
+
+// resBuf is a per-goroutine scratch buffer used for key + payload construction.
+// Workers are pinned (one goroutine per worker); each worker owns one resBuf.
+// This avoids heap allocation on the hot path.
+type resBuf struct {
+	b [128]byte
+}
+
+func (r *resBuf) slice() []byte { return r.b[:0] }
+
+// Reserve atomically decrements inventory and records the audit entry.
+// Returns nil on success, sentinel errors otherwise.
+// buf is caller-owned scratch memory to avoid heap allocation.
+func (s *Store) Reserve(
+	ctx context.Context,
+	eventID uint64,
+	quantity uint32,
+	reservationID uint64,
+	shardID int,
+	buf []byte,
+) error {
+	nowNs := time.Now().UnixNano()
+
+	tk := ticketsKey(eventID, buf)
+	buf = buf[:0]
+	ok := ordersKey(eventID, buf)
+	buf = buf[:0]
+	resIDStr := strconv.AppendUint(buf[:0], reservationID, 10)
+	buf = buf[:0]
+	payload := auditPayload(reservationID, nowNs, quantity, shardID, buf)
+
+	keys := []string{tk, ok}
+	argv := []interface{}{quantity, string(resIDStr), payload}
+
+	result, err := s.client.EvalSha(ctx, s.sha1, keys, argv...).Int()
+	if err != nil {
+		return ErrLuaExecution
+	}
+
+	switch result {
+	case 1:
+		return nil
+	case -1:
+		return ErrInventoryExhausted
+	case -2:
+		return ErrInventoryMissing
+	default:
+		return ErrLuaExecution
+	}
+}
+
+// Close releases the Redis connection pool.
+func (s *Store) Close() error {
+	return s.client.Close()
+}
+
+==================================================
+REAL FILE: internal/inventory/lua.go
+==================================================
+package inventory
+
+// luaReservationScript is the atomic reservation script.
+// Preloaded at startup via SCRIPT LOAD; SHA1 cached in Store.
+// Must never be reloaded on the hot path.
+//
+// KEYS[1] = {event:<id>}:tickets
+// KEYS[2] = {event:<id>}:orders
+// ARGV[1] = requested_quantity
+// ARGV[2] = reservation_id
+// ARGV[3] = audit_payload
+const luaReservationScript = `
+local stock = tonumber(redis.call('GET', KEYS[1]))
+
+if not stock then
+    return -2
+end
+
+local quantity = tonumber(ARGV[1])
+
+if stock < quantity then
+    return -1
+end
+
+redis.call('DECRBY', KEYS[1], quantity)
+
+redis.call(
+    'HSET',
+    KEYS[2],
+    ARGV[2],
+    ARGV[3]
+)
+
+return 1
+`
+
+==================================================
+REAL FILE: internal/inventory/keyspace.go
+==================================================
+package inventory
+
+import "strconv"
+
+// ticketsKey constructs the inventory counter key for an event.
+// Format: {event:<id>}:tickets
+// Hash tag {event:<id>} guarantees Redis Cluster slot colocation.
+//
+// Stack allocation: result escapes to caller; no fmt.Sprintf.
+func ticketsKey(eventID uint64, buf []byte) string {
+	buf = buf[:0]
+	buf = append(buf, '{', 'e', 'v', 'e', 'n', 't', ':')
+	buf = strconv.AppendUint(buf, eventID, 10)
+	buf = append(buf, '}', ':', 't', 'i', 'c', 'k', 'e', 't', 's')
+	return string(buf)
+}
+
+// ordersKey constructs the reservation audit key for an event.
+// Format: {event:<id>}:orders
+func ordersKey(eventID uint64, buf []byte) string {
+	buf = buf[:0]
+	buf = append(buf, '{', 'e', 'v', 'e', 'n', 't', ':')
+	buf = strconv.AppendUint(buf, eventID, 10)
+	buf = append(buf, '}', ':', 'o', 'r', 'd', 'e', 'r', 's')
+	return string(buf)
+}
+
+// auditPayload constructs the pipe-delimited audit string.
+// Format: reservation_id|timestamp_ns|quantity|shard_id
+// JSON is forbidden on the hot path per spec §6.7.
+func auditPayload(reservationID uint64, timestampNs int64, quantity uint32, shardID int, buf []byte) string {
+	buf = buf[:0]
+	buf = strconv.AppendUint(buf, reservationID, 10)
+	buf = append(buf, '|')
+	buf = strconv.AppendInt(buf, timestampNs, 10)
+	buf = append(buf, '|')
+	buf = strconv.AppendUint(buf, uint64(quantity), 10)
+	buf = append(buf, '|')
+	buf = strconv.AppendInt(buf, int64(shardID), 10)
+	return string(buf)
+}
+
+==================================================
+REAL FILE: internal/inventory/errors.go
+==================================================
+package inventory
+
+import "errors"
+
+// Sentinel errors for the inventory subsystem.
+// All error values are pre-allocated to prevent hot-path allocation.
+var (
+	ErrInventoryExhausted = errors.New("inventory exhausted")
+	ErrInventoryMissing   = errors.New("inventory key missing")
+	ErrLuaExecution       = errors.New("lua execution failure")
+	ErrQueueFull          = errors.New("worker queue saturated")
+)
+
+==================================================
+REAL FILE: internal/inventory/reservation.go
+==================================================
+package inventory
+
+import "sync/atomic"
+
+// reservationCounter is the global monotonic reservation ID generator.
+// Atomic increment; no locks; no heap allocation.
+var reservationCounter atomic.Uint64
+
+// NextReservationID returns the next unique reservation ID.
+// IDs are process-scoped monotonic integers.
+// Satisfies the uint64 reservation_id field in the protobuf contract.
+func NextReservationID() uint64 {
+	return reservationCounter.Add(1)
+}
+
+==================================================
+REAL FILE: internal/workerpool/dispatcher.go
+==================================================
+package workerpool
+
+import (
+	"hash/fnv"
+
+	"github.com/research/phase1a/internal/inventory"
+	"github.com/research/phase1a/internal/telemetry"
+)
+
+// Dispatcher owns all shards and routes inbound requests deterministically.
+// WorkerCount = runtime.NumCPU() * 2, set at construction; never mutated.
+type Dispatcher struct {
+	shards      []*Shard
+	workerCount int
+}
+
+// NewDispatcher initializes the fixed worker topology and starts all workers.
+// This is the only point at which goroutines are created.
+// After startup, dynamic worker creation is forbidden.
+func NewDispatcher(
+	workerCount int,
+	store *inventory.Store,
+	metrics *telemetry.Metrics,
+	stopCh <-chan struct{},
+) *Dispatcher {
+	shards := make([]*Shard, workerCount)
+	for i := 0; i < workerCount; i++ {
+		shards[i] = newShard(i)
+		// One goroutine per shard. Spawned exactly once at startup.
+		go worker(shards[i], store, metrics, stopCh)
+	}
+
+	return &Dispatcher{
+		shards:      shards,
+		workerCount: workerCount,
+	}
+}
+
+// Dispatch routes a ReservationRequest to the deterministic shard for req.EventID.
+//
+// Routing: ShardIndex = FNV1a(EventID) % WorkerCount
+//
+// Returns ErrQueueFull immediately if the target shard's queue is saturated.
+// Blocking is forbidden. Retries are forbidden.
+func (d *Dispatcher) Dispatch(req ReservationRequest) error {
+	idx := d.shardIndex(req.EventID)
+	return d.shards[idx].Dispatch(req)
+}
+
+// Snapshots returns point-in-time metrics for all shards.
+// Called from Prometheus scrape path only; never on hot path.
+func (d *Dispatcher) Snapshots() []ShardSnapshot {
+	snaps := make([]ShardSnapshot, d.workerCount)
+	for i, s := range d.shards {
+		snaps[i] = s.Snapshot()
+	}
+	return snaps
+}
+
+// shardIndex computes the deterministic shard assignment for an eventID.
+// FNV-1a 64-bit per spec §5.3.
+func (d *Dispatcher) shardIndex(eventID uint64) int {
+	h := fnv.New64a()
+	var b [8]byte
+	b[0] = byte(eventID >> 56)
+	b[1] = byte(eventID >> 48)
+	b[2] = byte(eventID >> 40)
+	b[3] = byte(eventID >> 32)
+	b[4] = byte(eventID >> 24)
+	b[5] = byte(eventID >> 16)
+	b[6] = byte(eventID >> 8)
+	b[7] = byte(eventID)
+	h.Write(b[:])
+	return int(h.Sum64() % uint64(d.workerCount))
+}
+
+==================================================
+REAL FILE: internal/workerpool/shard.go
+==================================================
+package workerpool
+
+import (
+	"github.com/research/phase1a/internal/config"
+	"github.com/research/phase1a/internal/telemetry"
+)
+
+// Shard owns exactly one bounded queue and one set of atomic counters.
+// One goroutine (the worker) drains the queue sequentially.
+// No other goroutine may write to the queue except via Dispatch.
+type Shard struct {
+	ID       int
+	queue    chan ReservationRequest
+	Counters telemetry.ShardCounters
+}
+
+// newShard initializes a Shard with a bounded queue of spec-mandated capacity.
+func newShard(id int) *Shard {
+	return &Shard{
+		ID:    id,
+		queue: make(chan ReservationRequest, config.QueueCapacity),
+	}
+}
+
+// Dispatch attempts a non-blocking insert into the shard's queue.
+// Returns ErrQueueFull immediately if the queue is at capacity.
+// Blocking insertion is forbidden per spec §5.5.
+func (s *Shard) Dispatch(req ReservationRequest) error {
+	s.Counters.TotalIngested.Add(1)
+
+	current := uint64(len(s.queue))
+	s.Counters.UpdateHighWatermark(current)
+
+	select {
+	case s.queue <- req:
+		return nil
+	default:
+		s.Counters.TotalRejected.Add(1)
+		return ErrQueueFull
+	}
+}
+
+==================================================
+REAL FILE: internal/workerpool/worker.go
+==================================================
+package workerpool
+
+import (
+	"context"
+	"errors"
+	"strconv"
+	"time"
+
+	"github.com/research/phase1a/internal/inventory"
+	"github.com/research/phase1a/internal/telemetry"
+)
+
+// ErrQueueFull is re-exported here so dispatcher.go has a single import point.
+var ErrQueueFull = inventory.ErrQueueFull
+
+// worker drains a single shard's queue sequentially.
+// One goroutine per worker; spawned once at startup; never recreated.
+//
+// Forbidden inside this loop (per spec §5.6):
+//   - go func()          — scheduler amplification
+//   - append()           — heap growth
+//   - fmt.Sprintf        — allocations
+//   - reflection         — unpredictable behavior
+//   - JSON serialization — allocation-heavy
+//   - map allocations    — GC amplification
+func worker(
+	shard *Shard,
+	store *inventory.Store,
+	metrics *telemetry.Metrics,
+	stopCh <-chan struct{},
+) {
+	// Scratch buffer owned by this goroutine; never shared.
+	// Reused across iterations to avoid per-request heap allocation.
+	var keyBuf [128]byte
+	buf := keyBuf[:0]
+
+	shardIDStr := shardLabel(shard.ID)
+
+	for {
+		select {
+		case <-stopCh:
+			return
+
+		case req := <-shard.queue:
+			start := time.Now()
+
+			reservationID := inventory.NextReservationID()
+			nowNs := start.UnixNano()
+
+			err := store.Reserve(
+				req.Ctx,
+				req.EventID,
+				req.Quantity,
+				reservationID,
+				shard.ID,
+				buf,
+			)
+
+			shard.Counters.TotalProcessed.Add(1)
+
+			latencyNs := time.Since(start).Nanoseconds()
+			latencySec := float64(latencyNs) / 1e9
+
+			statusLabel := labelFor(err)
+
+			metrics.ReservationLatency.WithLabelValues(statusLabel).Observe(latencySec)
+			metrics.RedisRTT.Observe(latencySec)
+
+			if errors.Is(err, inventory.ErrInventoryExhausted) {
+				metrics.OversellAttempts.Inc()
+			}
+
+			metrics.WorkerQueueDepth.WithLabelValues(shardIDStr).Set(float64(len(shard.queue)))
+
+			telemetry.LogReservation(
+				nowNs,
+				shard.ID,
+				shard.ID,
+				req.EventID,
+				reservationID,
+				latencyNs,
+				grpcStatusCode(err),
+			)
+
+			result := ReservationResult{
+				Err:           err,
+				TimestampNs:   nowNs,
+				ReservationID: reservationID,
+			}
+
+			// Non-blocking send; handler may have already timed out.
+			select {
+			case req.ResponseCh <- result:
+			default:
+			}
+		}
+	}
+}
+
+// labelFor maps a hot-path error to a fixed Prometheus label string.
+// All strings are compile-time constants — no allocation.
+func labelFor(err error) string {
+	if err == nil {
+		return "success"
+	}
+	if errors.Is(err, inventory.ErrInventoryExhausted) {
+		return "exhausted"
+	}
+	if errors.Is(err, inventory.ErrInventoryMissing) {
+		return "missing"
+	}
+	return "internal"
+}
+
+// grpcStatusCode maps errors to gRPC integer status codes per spec §10.
+func grpcStatusCode(err error) int {
+	if err == nil {
+		return 0 // OK
+	}
+	if errors.Is(err, inventory.ErrInventoryExhausted) {
+		return 9 // FailedPrecondition
+	}
+	if errors.Is(err, inventory.ErrInventoryMissing) {
+		return 5 // NotFound
+	}
+	if errors.Is(err, context.DeadlineExceeded) {
+		return 4 // DeadlineExceeded
+	}
+	return 13 // Internal
+}
+
+// shardLabelTable maps shard IDs 0–63 to pre-allocated label strings.
+// Built once at init time via strconv.Itoa; never written on the hot path.
+var shardLabelTable [64]string
+
+func init() {
+	for i := range shardLabelTable {
+		shardLabelTable[i] = strconv.Itoa(i)
+	}
+}
+
+func shardLabel(id int) string {
+	if id >= 0 && id < len(shardLabelTable) {
+		return shardLabelTable[id]
+	}
+	return "unknown"
+}
+
+==================================================
+REAL FILE: internal/telemetry/prometheus.go
+==================================================
+package telemetry
+
+import (
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+)
+
+// Metrics holds all Prometheus instrumentation for Phase 1A.
+// All histograms use fixed bucket sets to bound cardinality.
+type Metrics struct {
+	ReservationLatency  *prometheus.HistogramVec
+	QueueSaturation     *prometheus.CounterVec
+	OversellAttempts    prometheus.Counter
+	RedisRTT            prometheus.Histogram
+	WorkerQueueDepth    *prometheus.GaugeVec
+}
+
+var buckets = []float64{
+	0.0001, 0.0005, 0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1,
+}
+
+func NewMetrics(reg prometheus.Registerer) *Metrics {
+	factory := promauto.With(reg)
+
+	return &Metrics{
+		ReservationLatency: factory.NewHistogramVec(prometheus.HistogramOpts{
+			Name:    "reservation_latency_seconds",
+			Help:    "End-to-end reservation latency in seconds.",
+			Buckets: buckets,
+		}, []string{"status"}),
+
+		QueueSaturation: factory.NewCounterVec(prometheus.CounterOpts{
+			Name: "queue_saturation_total",
+			Help: "Total requests rejected due to queue saturation.",
+		}, []string{"shard_id"}),
+
+		OversellAttempts: factory.NewCounter(prometheus.CounterOpts{
+			Name: "oversell_attempts_total",
+			Help: "Total inventory exhaustion hits (must remain 0 for actual oversells).",
+		}),
+
+		RedisRTT: factory.NewHistogram(prometheus.HistogramOpts{
+			Name:    "redis_rtt_seconds",
+			Help:    "Redis Lua script round-trip latency.",
+			Buckets: buckets,
+		}),
+
+		WorkerQueueDepth: factory.NewGaugeVec(prometheus.GaugeOpts{
+			Name: "worker_queue_depth",
+			Help: "Current depth of each worker's bounded queue.",
+		}, []string{"shard_id"}),
+	}
+}
+
+==================================================
+AUDIT OBJECTIVES
+==================================================
+
+You MUST identify:
+1. Hidden heap allocations
+2. Interface boxing
+3. Slice growth allocations
+4. string([]byte) allocation boundaries
+5. []interface{} allocation pressure
+6. []string allocation pressure
+7. strconv.AppendUint behavior
+8. EvalSha argument escape behavior
+9. Lua payload allocation contamination
+10. Redis key generation costs
+11. sync.Pool opportunities
+12. escape-analysis failures
+13. scheduler amplification risks
+14. cache-line contention risks
+15. telemetry contamination inside hot paths
+
+==================================================
+IMPORTANT CONSTRAINTS
+==================================================
+
+You MUST preserve architecture exactly.
+
+Forbidden:
+- redesigns
+- dependency injection
+- wrappers
+- interfaces
+- ORMs
+- middleware
+- microservices
+- speculative infrastructure
+
+==================================================
+OUTPUT FORMAT
+==================================================
+
+1. Allocation Risk Map
+2. Escape Analysis Risks
+3. Hot Path Contamination Analysis
+4. Mechanical Optimization Opportunities
+5. Estimated allocs/op Impact
+6. Highest Priority Optimization Targets

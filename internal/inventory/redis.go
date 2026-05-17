@@ -1,0 +1,186 @@
+package inventory
+
+import (
+	"context"
+	"strconv"
+	"time"
+
+	"github.com/redis/go-redis/v9"
+)
+
+// Store holds the Redis client and the preloaded Lua SHA1 digest.
+// sha1 is written once at startup and read-only on the hot path.
+type Store struct {
+	client *redis.Client
+	sha1   string
+}
+
+// NewStore constructs a Store and preloads the Lua script.
+// Blocks until SCRIPT LOAD succeeds or ctx is cancelled.
+func NewStore(ctx context.Context, addr, password string, db int) (*Store, error) {
+	client := redis.NewClient(&redis.Options{
+		Addr:         addr,
+		Password:     password,
+		DB:           db,
+		PoolSize:     64,
+		MinIdleConns: 16,
+		DialTimeout:  2 * time.Second,
+		ReadTimeout:  2 * time.Second,
+		WriteTimeout: 2 * time.Second,
+	})
+
+	sha1, err := client.ScriptLoad(ctx, luaReservationScript).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	return &Store{client: client, sha1: sha1}, nil
+}
+
+// resBuf is a per-goroutine scratch buffer used for key + payload construction.
+// Workers are pinned (one goroutine per worker); each worker owns one resBuf.
+// This avoids heap allocation on the hot path.
+type resBuf struct {
+	b [128]byte
+}
+
+func (r *resBuf) slice() []byte { return r.b[:0] }
+
+// Reserve atomically decrements inventory and records the audit entry.
+// Returns nil on success, sentinel errors otherwise.
+// buf is caller-owned scratch memory to avoid heap allocation.
+func (s *Store) Reserve(
+	ctx context.Context,
+	eventID uint64,
+	quantity uint32,
+	reservationID uint64,
+	shardID int,
+	buf []byte,
+) error {
+	nowNs := time.Now().UnixNano()
+
+	tk := ticketsKey(eventID, buf)
+	buf = buf[:0]
+	ok := ordersKey(eventID, buf)
+	buf = buf[:0]
+	resIDStr := strconv.AppendUint(buf[:0], reservationID, 10)
+	buf = buf[:0]
+	payload := auditPayload(reservationID, nowNs, quantity, shardID, buf)
+
+	var keysArr [2]string
+	keysArr[0] = tk
+	keysArr[1] = ok
+	var argvArr [3]interface{}
+	argvArr[0] = quantity
+	argvArr[1] = string(resIDStr)
+	argvArr[2] = payload
+
+	keys := keysArr[:]
+	argv := argvArr[:]
+
+	result, err := s.client.EvalSha(ctx, s.sha1, keys, argv...).Int()
+	if err != nil {
+		return ErrLuaExecution
+	}
+
+	switch result {
+	case 1:
+		return nil
+	case -1:
+		return ErrInventoryExhausted
+	case -2:
+		return ErrInventoryMissing
+	default:
+		return ErrLuaExecution
+	}
+}
+
+// Close releases the Redis connection pool.
+func (s *Store) Close() error {
+	return s.client.Close()
+}
+
+func (s *Store) ReserveBatch(
+	ctx context.Context,
+	reqs []struct {
+		EventID       uint64
+		Quantity      uint32
+		ReservationID uint64
+		ShardID       int
+	},
+	buf []byte,
+) []error {
+
+	pipe := s.client.Pipeline()
+
+	errs := make([]error, len(reqs))
+
+	cmds := make([]*redis.Cmd, len(reqs))
+
+	for i, r := range reqs {
+
+		nowNs := time.Now().UnixNano()
+
+		tk := ticketsKey(r.EventID, buf)
+		buf = buf[:0]
+
+		ok := ordersKey(r.EventID, buf)
+		buf = buf[:0]
+
+		resIDStr := strconv.AppendUint(buf[:0], r.ReservationID, 10)
+		buf = buf[:0]
+
+		payload := auditPayload(
+			r.ReservationID,
+			nowNs,
+			r.Quantity,
+			r.ShardID,
+			buf,
+		)
+
+		var keysArr [2]string
+		keysArr[0] = tk
+		keysArr[1] = ok
+
+		var argvArr [3]interface{}
+		argvArr[0] = r.Quantity
+		argvArr[1] = string(resIDStr)
+		argvArr[2] = payload
+
+		cmds[i] = pipe.EvalSha(
+			ctx,
+			s.sha1,
+			keysArr[:],
+			argvArr[:]...,
+		)
+	}
+
+	_, _ = pipe.Exec(ctx)
+
+	for i, cmd := range cmds {
+
+		result, err := cmd.Int()
+
+		if err != nil {
+			errs[i] = ErrLuaExecution
+			continue
+		}
+
+		switch result {
+
+		case 1:
+			errs[i] = nil
+
+		case -1:
+			errs[i] = ErrInventoryExhausted
+
+		case -2:
+			errs[i] = ErrInventoryMissing
+
+		default:
+			errs[i] = ErrLuaExecution
+		}
+	}
+
+	return errs
+}

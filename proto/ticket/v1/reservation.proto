@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package ticket.v1;
+
+option go_package = "internal/gen/ticket/v1;ticketv1";
+
+message ReserveTicketRequest {
+  uint64 event_id  = 1;
+  uint32 quantity  = 2;
+  uint64 user_id_high = 3;
+  uint64 user_id_low  = 4;
+}
+
+message ReserveTicketResponse {
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_SUCCESS     = 1;
+    STATUS_EXHAUSTED   = 2;
+    STATUS_TIMEOUT     = 3;
+    STATUS_REJECTED    = 4;
+    STATUS_INTERNAL    = 5;
+  }
+
+  Status status             = 1;
+  uint64 reservation_id     = 2;
+  int64  timestamp_unix_nano = 3;
+}
+
+service TicketReservationService {
+  rpc ReserveTicket(ReserveTicketRequest)
+      returns (ReserveTicketResponse);
+}
