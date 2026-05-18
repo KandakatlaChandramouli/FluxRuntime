@@ -67,70 +67,28 @@ The runtime simulates the execution path of a high-throughput ticketing or inven
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                             FluxRuntime                                      │
-│                                                                              │
-│   Client Requests                                                            │
-│        │                                                                     │
-│        ▼                                                                     │
-│  ┌─────────────┐    FNV-1a hash     ┌──────────────────────────────────┐   │
-│  │  Dispatcher │ ─────────────────► │  Shard Router                    │   │
-│  └─────────────┘                   │  eventID → stable shard index    │   │
-│                                     └──────────┬───────────────────────┘   │
-│                                                │                            │
-│                          ┌─────────────────────┼────────────────────┐      │
-│                          │                     │                    │      │
-│                          ▼                     ▼                    ▼      │
-│                   ┌────────────┐       ┌────────────┐      ┌────────────┐  │
-│                   │ RingBuf[0] │       │ RingBuf[1] │  ... │ RingBuf[N] │  │
-│                   │ lock-free  │       │ lock-free  │      │ lock-free  │  │
-│                   │ bounded    │       │ bounded    │      │ bounded    │  │
-│                   └─────┬──────┘       └─────┬──────┘      └─────┬──────┘  │
-│                         │                   │                    │         │
-│                         └─────────┬─────────┘────────────────────┘         │
-│                                   │                                         │
-│                                   ▼                                         │
-│                          ┌─────────────────┐                                │
-│                          │  Worker Pool    │   goroutine-per-shard          │
-│                          │  parallel exec  │   multicore dispatch           │
-│                          └────────┬────────┘                                │
-│                                   │                                         │
-│                                   ▼                                         │
-│                          ┌─────────────────┐                                │
-│                          │  Aggregation    │   adaptive microbatch          │
-│                          │  Lanes          │   queue amortization           │
-│                          └────────┬────────┘                                │
-│                                   │                                         │
-│                                   ▼                                         │
-│                          ┌─────────────────┐                                │
-│                          │  Redis Pipeline │   Lua atomic reservation       │
-│                          │  Executor       │   batched datastore writes     │
-│                          └─────────────────┘                                │
-│                                                                              │
-│  ══════════════════════════════════════════════════════════════════════════ │
-│  Telemetry: p50/p95/p99 · queue depth · rejection rate · batch evolution   │
-└─────────────────────────────────────────────────────────────────────────────┘
-```
+
+```md
+## Architecture
+
+<div align="center">
+
+<img src="./docs/diagrams/runtime_architecture.png" width="100%" />
+
+</div>
 
 ### Overload Control Path
 
-```
-  Incoming request
-        │
-        ▼
-  ┌─────────────┐      queue fill ratio > threshold?
-  │  Dispatcher │ ─────────────────────────────────────► REJECT (early, probabilistic)
-  └─────┬───────┘                                              │
-        │ (admitted)                                            ▼
-        ▼                                              rejection counter++
-  ┌─────────────┐
-  │  RingBuffer │ ──── full? ──► non-blocking drop + rejection telemetry
-  └─────────────┘
-        │ (enqueued)
-        ▼
-  normal execution path
-```
+
+
+```md
+## Overload Control Path
+
+<div align="center">
+
+<img src="./docs/diagrams/overload_control.png" width="100%" />
+
+</div>
 
 Overload shedding operates at two layers: a soft probabilistic gate at the dispatcher (prior to enqueue) and a hard non-blocking gate at the ring buffer boundary (at enqueue). Neither blocks the calling goroutine.
 
@@ -138,47 +96,16 @@ Overload shedding operates at two layers: a soft probabilistic gate at the dispa
 
 ## Runtime Pipeline
 
-```
-   ┌──────────────────────────────────────────────────────────────────┐
-   │  DISPATCH LAYER                                                  │
-   │  ─────────────────────────────────────────────────────────────  │
-   │  FNV-1a(eventID) % numShards → stable shard selection          │
-   │  soft overload check → probabilistic early rejection            │
-   └────────────────────────────────┬─────────────────────────────────┘
-                                    │
-   ┌────────────────────────────────▼─────────────────────────────────┐
-   │  QUEUE LAYER                                                     │
-   │  ─────────────────────────────────────────────────────────────  │
-   │  lock-free ring buffer per shard                                │
-   │  atomic head/tail via CAS                                       │
-   │  bounded capacity → hard reject on full                        │
-   │  0 allocs/op on enqueue hotpath                                 │
-   └────────────────────────────────┬─────────────────────────────────┘
-                                    │
-   ┌────────────────────────────────▼─────────────────────────────────┐
-   │  WORKER LAYER                                                    │
-   │  ─────────────────────────────────────────────────────────────  │
-   │  1 goroutine per shard                                          │
-   │  dequeues items, forwards to aggregation lane                   │
-   │  no cross-shard synchronization required                        │
-   └────────────────────────────────┬─────────────────────────────────┘
-                                    │
-   ┌────────────────────────────────▼─────────────────────────────────┐
-   │  AGGREGATION LAYER                                               │
-   │  ─────────────────────────────────────────────────────────────  │
-   │  accumulates requests into microbatches                         │
-   │  adaptive batch size based on queue pressure                    │
-   │  flushes to Redis pipeline executor                             │
-   └────────────────────────────────┬─────────────────────────────────┘
-                                    │
-   ┌────────────────────────────────▼─────────────────────────────────┐
-   │  DATASTORE LAYER                                                 │
-   │  ─────────────────────────────────────────────────────────────  │
-   │  Lua script: atomic inventory check + reservation decrement     │
-   │  pipelined execution over batch                                 │
-   │  result fan-out back to callers                                 │
-   └──────────────────────────────────────────────────────────────────┘
-```
+
+
+```md
+## Architecture
+
+<div align="center">
+
+<img src="./docs/diagrams/dispatcher_pipeline.png" width="100%" />
+
+</div>
 
 ---
 
