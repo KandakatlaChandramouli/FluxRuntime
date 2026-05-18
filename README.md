@@ -1,4 +1,4 @@
-# Phase1A — High-Throughput Reservation Runtime
+High-Throughput Reservation Runtime
 
 Research-oriented high-performance reservation runtime implemented in Go.
 
