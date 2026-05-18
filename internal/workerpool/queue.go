@@ -6,12 +6,13 @@ import "context"
 // All fields are value types; no pointers, no interfaces, no closures.
 // This keeps the struct off the heap when passed through the channel.
 type ReservationRequest struct {
-	EventID    uint64
-	Quantity   uint32
-	UserIDHigh uint64
-	UserIDLow  uint64
-	ResponseCh chan ReservationResult
-	Ctx        context.Context
+	EventID     uint64
+	Quantity    uint32
+	UserIDHigh  uint64
+	UserIDLow   uint64
+	ResponseCh  chan ReservationResult
+	Ctx         context.Context
+	TimestampNs int64
 }
 
 // ReservationResult carries the outcome back to the gRPC handler.

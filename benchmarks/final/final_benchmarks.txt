@@ -1,0 +1,13 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/research/phase1a/internal/workerpool
+cpu: Apple M1
+BenchmarkDispatchHotKey-8            	67333454	        15.20 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDispatchColdKeys-8          	75191305	        15.66 ns/op	       0 B/op	       0 allocs/op
+BenchmarkSaturatedDispatch-8         	79520670	        15.16 ns/op	       0 B/op	       0 allocs/op
+BenchmarkShardRouting-8              	234242533	         5.213 ns/op	       0 B/op	       0 allocs/op
+BenchmarkShardRoutingInlined-8       	288442614	         4.184 ns/op	       0 B/op	       0 allocs/op
+BenchmarkAtomicCounters-8            	29409901	        42.35 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueEnqueue-8              	46534322	        26.07 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLiveReservationHotKey-8     	signal: interrupt
+FAIL	github.com/research/phase1a/internal/workerpool	349.186s

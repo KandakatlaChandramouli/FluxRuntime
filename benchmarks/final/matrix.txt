@@ -1,0 +1,10 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/research/phase1a/internal/workerpool
+cpu: Apple M1
+BenchmarkPressureMatrix/workers_2-8         	 5516528	       211.3 ns/op	         0 completed	   5516511 dispatched	        17.00 rejected	       0 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_4-8         	 6434041	       178.0 ns/op	         0 completed	   6434016 dispatched	        25.00 rejected	       0 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_8-8         	10357114	       116.3 ns/op	         0 completed	  10350803 dispatched	      6311 rejected	       0 B/op	       0 allocs/op
+BenchmarkPressureMatrix/workers_16-8        	11469858	       106.2 ns/op	         0 completed	  11463330 dispatched	      6528 rejected	       0 B/op	       0 allocs/op
+PASS
+ok  	github.com/research/phase1a/internal/workerpool	5.901s

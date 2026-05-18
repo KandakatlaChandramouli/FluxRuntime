@@ -3,9 +3,15 @@ package workerpool
 import (
 	"context"
 	"hash/fnv"
+	"math/rand"
 
+	"github.com/research/phase1a/internal/config"
 	"github.com/research/phase1a/internal/inventory"
 	"github.com/research/phase1a/internal/telemetry"
+)
+
+const (
+	softQueueLimit = 2048
 )
 
 type Dispatcher struct {
@@ -55,6 +61,20 @@ func (d *Dispatcher) Dispatch(req ReservationRequest) error {
 	shard := d.route(req.EventID)
 
 	shard.Counters.TotalIngested.Add(1)
+
+	depth := shard.queue.Len()
+
+	if depth > softQueueLimit {
+
+		overload := float64(depth-softQueueLimit) / float64(config.QueueCapacity-softQueueLimit)
+
+		if rand.Float64() < overload {
+
+			shard.Counters.TotalRejected.Add(1)
+
+			return ErrQueueFull
+		}
+	}
 
 	if shard.queue.Enqueue(req) {
 

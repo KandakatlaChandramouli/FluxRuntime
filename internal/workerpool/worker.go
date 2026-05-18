@@ -3,7 +3,7 @@ package workerpool
 import (
 	"context"
 	"runtime"
-	"time"
+	"sync"
 
 	"github.com/research/phase1a/internal/inventory"
 	"github.com/research/phase1a/internal/telemetry"
@@ -14,8 +14,9 @@ var ErrQueueFull = inventory.ErrQueueFull
 
 const (
 	workerBatchSize = 64
-	maxSpinCount    = 256
 )
+
+var aggregatorOnce sync.Once
 
 func worker(
 	shard *Shard,
@@ -24,21 +25,19 @@ func worker(
 	ctx context.Context,
 ) {
 
-	var keyBuf [128]byte
-	buf := keyBuf[:0]
-
-	var batch [workerBatchSize]ReservationRequest
-
-	var reserveBatch [workerBatchSize]struct {
-		EventID       uint64
-		Quantity      uint32
-		ReservationID uint64
-		ShardID       int
-	}
-
 	_ = metrics
 
-	spinCount := 0
+	aggregatorOnce.Do(func() {
+
+		for i := 0; i < aggregatorLaneCount; i++ {
+
+			AggregatorLanes[i] = NewAggregator(store)
+
+			go AggregatorLanes[i].Run(ctx)
+		}
+	})
+
+	var batch [workerBatchSize]ReservationRequest
 
 	for {
 
@@ -57,84 +56,30 @@ func worker(
 
 		if n == 0 {
 
-			if store == nil {
-				return
-			}
-
-			spinCount++
-
-			if spinCount < maxSpinCount {
-
-				runtime.Gosched()
-
-			} else {
-
-				time.Sleep(time.Microsecond)
-
-				spinCount = 0
-			}
+			runtime.Gosched()
 
 			continue
 		}
-
-		spinCount = 0
-
-		batchStart := time.Now()
-
-		for i := 0; i < n; i++ {
-
-			reservationID := inventory.NextReservationID()
-
-			reserveBatch[i] = struct {
-				EventID       uint64
-				Quantity      uint32
-				ReservationID uint64
-				ShardID       int
-			}{
-				EventID:       batch[i].EventID,
-				Quantity:      batch[i].Quantity,
-				ReservationID: reservationID,
-				ShardID:       shard.ID,
-			}
-		}
-
-		errs := store.ReserveBatch(
-			context.Background(),
-			reserveBatch[:n],
-			buf,
-		)
 
 		for i := 0; i < n; i++ {
 
 			req := batch[i]
 
-			err := errs[i]
+			lane := int(req.EventID % aggregatorLaneCount)
 
-			req.ResponseCh <- ReservationResult{
-				ReservationID: reserveBatch[i].ReservationID,
-				TimestampNs:   batchStart.UnixNano(),
-				Err:           err,
+			ok := AggregatorLanes[lane].Submit(
+				reserveJob{
+					Request:       req,
+					ReservationID: inventory.NextReservationID(),
+					ShardID:       shard.ID,
+				},
+			)
+
+			if !ok {
+				continue
 			}
 
 			shard.Counters.TotalProcessed.Add(1)
-
-			statusCode := 0
-
-			if err != nil {
-				statusCode = 1
-			}
-
-			telemetry.GlobalAsync.Emit(
-				telemetry.Event{
-					TimestampNs:   time.Now().UnixNano(),
-					ShardID:       shard.ID,
-					Quantity:      int(req.Quantity),
-					EventID:       req.EventID,
-					ReservationID: reserveBatch[i].ReservationID,
-					LatencyNs:     time.Since(batchStart).Nanoseconds(),
-					StatusCode:    statusCode,
-				},
-			)
 		}
 	}
 }

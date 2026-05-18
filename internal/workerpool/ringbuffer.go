@@ -1,16 +1,12 @@
 package workerpool
 
 import (
-	"sync"
 	"sync/atomic"
 )
 
 type RingBuffer struct {
 	head atomic.Uint64
 	tail atomic.Uint64
-
-	enqueueMu sync.Mutex
-	dequeueMu sync.Mutex
 
 	mask uint64
 
@@ -31,40 +27,46 @@ func NewRingBuffer(size uint64) *RingBuffer {
 
 func (r *RingBuffer) Enqueue(req ReservationRequest) bool {
 
-	r.enqueueMu.Lock()
-	defer r.enqueueMu.Unlock()
+	for {
 
-	head := r.head.Load()
-	tail := r.tail.Load()
+		head := r.head.Load()
+		tail := r.tail.Load()
 
-	if head-tail >= uint64(len(r.buffer)) {
-		return false
+		if head-tail >= uint64(len(r.buffer)) {
+			return false
+		}
+
+		if r.head.CompareAndSwap(head, head+1) {
+
+			slot := head & r.mask
+
+			r.buffer[slot] = req
+
+			return true
+		}
 	}
-
-	r.buffer[head&r.mask] = req
-
-	r.head.Store(head + 1)
-
-	return true
 }
 
 func (r *RingBuffer) Dequeue() (ReservationRequest, bool) {
 
-	r.dequeueMu.Lock()
-	defer r.dequeueMu.Unlock()
+	for {
 
-	head := r.head.Load()
-	tail := r.tail.Load()
+		tail := r.tail.Load()
+		head := r.head.Load()
 
-	if tail == head {
-		return ReservationRequest{}, false
+		if tail == head {
+			return ReservationRequest{}, false
+		}
+
+		if r.tail.CompareAndSwap(tail, tail+1) {
+
+			slot := tail & r.mask
+
+			req := r.buffer[slot]
+
+			return req, true
+		}
 	}
-
-	req := r.buffer[tail&r.mask]
-
-	r.tail.Store(tail + 1)
-
-	return req, true
 }
 
 func (r *RingBuffer) DequeueBatch(
@@ -72,28 +74,20 @@ func (r *RingBuffer) DequeueBatch(
 	dst []ReservationRequest,
 ) int {
 
-	r.dequeueMu.Lock()
-	defer r.dequeueMu.Unlock()
-
-	head := r.head.Load()
-	tail := r.tail.Load()
-
 	n := 0
 
 	for n < max {
 
-		if tail == head {
+		req, ok := r.Dequeue()
+
+		if !ok {
 			break
 		}
 
-		dst[n] = r.buffer[tail&r.mask]
-
-		tail++
+		dst[n] = req
 
 		n++
 	}
-
-	r.tail.Store(tail)
 
 	return n
 }

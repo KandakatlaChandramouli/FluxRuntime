@@ -343,26 +343,27 @@ func TestDeterministicShardRouting(t *testing.T) {
 func TestWorkerTermination(t *testing.T) {
 	shard := newShard(0)
 
+	ctx, cancel := context.WithCancel(context.Background())
+
 	var wg sync.WaitGroup
 	wg.Add(1)
 
-	// Wrap the internal worker with a WaitGroup to detect clean exit.
-	// This uses the unexported worker function directly (same package).
 	go func() {
 		defer wg.Done()
-		// nilStore and nilMetrics: worker is never fed requests in this test,
-		// so store.Reserve and metrics calls are never reached.
-		// We only test the stopCh termination path.
-		worker(shard, nil, nil, context.Background())
+
+		worker(
+			shard,
+			nil,
+			nil,
+			ctx,
+		)
 	}()
 
-	// Signal stop. Worker must exit the select on <-stopCh.
+	cancel()
 
-	// wg.Wait() blocks until the goroutine returns.
-	// No sleep. No polling. Deterministic termination.
 	wg.Wait()
 
-	t.Log("worker terminated cleanly on stopCh close")
+	t.Log("worker terminated cleanly on context cancellation")
 }
 
 // TestConcurrentCounterConsistency validates that atomic counters remain

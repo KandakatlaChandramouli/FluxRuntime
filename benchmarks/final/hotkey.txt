@@ -1,0 +1,7 @@
+goos: darwin
+goarch: arm64
+pkg: github.com/research/phase1a/internal/workerpool
+cpu: Apple M1
+BenchmarkPressureHotKey-8   	10509103	       115.8 ns/op	         0 completed	  10467639 dispatched	      4096 max_watermark	     41464 rejected	  10509103 shard_ingested	     41464 shard_rejected	       0 B/op	       0 allocs/op
+PASS
+ok  	github.com/research/phase1a/internal/workerpool	2.155s
