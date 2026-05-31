@@ -16,13 +16,7 @@ func WriteCSV(path string, rows [][]string) error {
 
 	w := csv.NewWriter(f)
 
-	err = w.WriteAll(rows)
+	defer w.Flush()
 
-	if err != nil {
-		return err
-	}
-
-	w.Flush()
-
-	return nil
+	return w.WriteAll(rows)
 }

@@ -1,0 +1,122 @@
+?   	github.com/research/phase1a/cmd/api	[no test files]
+?   	github.com/research/phase1a/internal/admission	[no test files]
+?   	github.com/research/phase1a/internal/admission/codel	[no test files]
+?   	github.com/research/phase1a/internal/admission/gradient	[no test files]
+?   	github.com/research/phase1a/internal/admission/red	[no test files]
+?   	github.com/research/phase1a/internal/baselines	[no test files]
+?   	github.com/research/phase1a/internal/baselines/channelqueue	[no test files]
+?   	github.com/research/phase1a/internal/baselines/mutexqueue	[no test files]
+?   	github.com/research/phase1a/internal/baselines/unboundedqueue	[no test files]
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/cache	0.004s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/contention	0.004s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/core	0.004s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/fairness	0.004s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/hotkey	0.006s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/latency	0.008s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/overload	0.006s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/scaling	0.006s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/scheduler	0.006s
+?   	github.com/research/phase1a/internal/config	[no test files]
+goos: linux
+goarch: amd64
+pkg: github.com/research/phase1a/internal/evaluation
+cpu: AMD EPYC 7763 64-Core Processor                
+BenchmarkQueueComparisons/mutex_queue-4         	136222476	         8.979 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueComparisons/mutex_queue-4         	139434751	         8.491 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueComparisons/mutex_queue-4         	136594255	         8.926 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueComparisons/channel_queue-4       	100000000	        10.69 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueComparisons/channel_queue-4       	100000000	        10.57 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueComparisons/channel_queue-4       	100000000	        10.79 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueComparisons/unbounded_queue-4     	 5887142	       240.2 ns/op	     371 B/op	       0 allocs/op
+BenchmarkQueueComparisons/unbounded_queue-4     	24416840	       385.8 ns/op	     414 B/op	       0 allocs/op
+BenchmarkQueueComparisons/unbounded_queue-4     	16394857	       102.4 ns/op	     229 B/op	       0 allocs/op
+PASS
+ok  	github.com/research/phase1a/internal/evaluation	24.452s
+?   	github.com/research/phase1a/internal/evaluation/methodology	[no test files]
+?   	github.com/research/phase1a/internal/evaluation/reproducibility	[no test files]
+?   	github.com/research/phase1a/internal/evaluation/statistics	[no test files]
+PASS
+ok  	github.com/research/phase1a/internal/experiments/batching	0.007s
+PASS
+ok  	github.com/research/phase1a/internal/experiments/memory	0.003s
+PASS
+ok  	github.com/research/phase1a/internal/experiments/occupancy	0.007s
+PASS
+ok  	github.com/research/phase1a/internal/experiments/overload	0.003s
+PASS
+ok  	github.com/research/phase1a/internal/experiments/rejection	0.005s
+PASS
+ok  	github.com/research/phase1a/internal/experiments/scaling	0.003s
+PASS
+ok  	github.com/research/phase1a/internal/experiments/scheduler	0.004s
+?   	github.com/research/phase1a/internal/gen/ticket/v1	[no test files]
+?   	github.com/research/phase1a/internal/grpc	[no test files]
+?   	github.com/research/phase1a/internal/instrumentation/exporter	[no test files]
+?   	github.com/research/phase1a/internal/instrumentation/memory	[no test files]
+?   	github.com/research/phase1a/internal/instrumentation/residency	[no test files]
+?   	github.com/research/phase1a/internal/instrumentation/scheduler	[no test files]
+?   	github.com/research/phase1a/internal/inventory	[no test files]
+?   	github.com/research/phase1a/internal/metrics/exporter	[no test files]
+?   	github.com/research/phase1a/internal/metrics/snapshot	[no test files]
+?   	github.com/research/phase1a/internal/runtime/affinity	[no test files]
+?   	github.com/research/phase1a/internal/runtime/allocator	[no test files]
+?   	github.com/research/phase1a/internal/runtime/backpressure	[no test files]
+?   	github.com/research/phase1a/internal/runtime/cache	[no test files]
+?   	github.com/research/phase1a/internal/runtime/clock	[no test files]
+?   	github.com/research/phase1a/internal/runtime/coordination	[no test files]
+?   	github.com/research/phase1a/internal/runtime/fairness	[no test files]
+?   	github.com/research/phase1a/internal/runtime/loadshed	[no test files]
+?   	github.com/research/phase1a/internal/runtime/microbatch	[no test files]
+?   	github.com/research/phase1a/internal/runtime/pipeline	[no test files]
+?   	github.com/research/phase1a/internal/runtime/predictor	[no test files]
+?   	github.com/research/phase1a/internal/runtime/rebalancer	[no test files]
+?   	github.com/research/phase1a/internal/runtime/saturation	[no test files]
+?   	github.com/research/phase1a/internal/runtime/scheduler	[no test files]
+?   	github.com/research/phase1a/internal/runtime/spinwait	[no test files]
+?   	github.com/research/phase1a/internal/runtime/topology	[no test files]
+?   	github.com/research/phase1a/internal/runtime/worksteal	[no test files]
+?   	github.com/research/phase1a/internal/telemetry	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/collector	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/export	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/histogram	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/percentiles	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/prometheus	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/runtime	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/sampler	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/series	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/stream	[no test files]
+goos: linux
+goarch: amd64
+pkg: github.com/research/phase1a/internal/workerpool
+cpu: AMD EPYC 7763 64-Core Processor                
+BenchmarkDispatchHotKey-4            	41299309	        29.08 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDispatchHotKey-4            	38170036	        29.36 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDispatchHotKey-4            	43403538	        29.68 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDispatchColdKeys-4          	41368689	        29.23 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDispatchColdKeys-4          	41450106	        29.56 ns/op	       0 B/op	       0 allocs/op
+BenchmarkDispatchColdKeys-4          	37272397	        28.51 ns/op	       0 B/op	       0 allocs/op
+BenchmarkSaturatedDispatch-4         	39543972	        30.38 ns/op	       0 B/op	       0 allocs/op
+BenchmarkSaturatedDispatch-4         	41656195	        28.37 ns/op	       0 B/op	       0 allocs/op
+BenchmarkSaturatedDispatch-4         	42574994	        28.60 ns/op	       0 B/op	       0 allocs/op
+BenchmarkShardRouting-4              	156209337	         7.475 ns/op	       0 B/op	       0 allocs/op
+BenchmarkShardRouting-4              	154520786	         7.644 ns/op	       0 B/op	       0 allocs/op
+BenchmarkShardRouting-4              	158052980	         7.556 ns/op	       0 B/op	       0 allocs/op
+BenchmarkShardRoutingInlined-4       	155574774	         7.209 ns/op	       0 B/op	       0 allocs/op
+BenchmarkShardRoutingInlined-4       	165972824	         7.205 ns/op	       0 B/op	       0 allocs/op
+BenchmarkShardRoutingInlined-4       	158991334	         7.095 ns/op	       0 B/op	       0 allocs/op
+BenchmarkAtomicCounters-4            	66183913	        17.05 ns/op	       0 B/op	       0 allocs/op
+BenchmarkAtomicCounters-4            	100000000	        16.95 ns/op	       0 B/op	       0 allocs/op
+BenchmarkAtomicCounters-4            	69318223	        16.63 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueEnqueue-4              	23697793	        43.54 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueEnqueue-4              	26516210	        38.30 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueEnqueue-4              	31284288	        41.51 ns/op	       0 B/op	       0 allocs/op
+BenchmarkLiveReservationHotKey-4     	

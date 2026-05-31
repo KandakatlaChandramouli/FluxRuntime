@@ -16,11 +16,13 @@ func (t *Tracker) Record(start int64) {
 		return
 	}
 
-	lat := uint64(time.Now().UnixNano() - start)
+	now := time.Now().UnixNano()
 
-	if !ValidLatency(lat) {
+	if now <= start {
 		return
 	}
+
+	lat := uint64(now - start)
 
 	t.totalNs.Add(lat)
 	t.count.Add(1)
@@ -38,7 +40,7 @@ func (t *Tracker) Record(start int64) {
 	}
 }
 
-func (t *Tracker) AvgNs() uint64 {
+func (t *Tracker) Avg() uint64 {
 	c := t.count.Load()
 
 	if c == 0 {
@@ -46,4 +48,8 @@ func (t *Tracker) AvgNs() uint64 {
 	}
 
 	return t.totalNs.Load() / c
+}
+
+func (t *Tracker) Max() uint64 {
+	return t.maxNs.Load()
 }

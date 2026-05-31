@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -e
+
+go test ./...
+go test -bench=. -benchmem ./...
+python3 scripts/visualization/generate_all.py

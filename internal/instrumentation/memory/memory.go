@@ -1,8 +1,6 @@
 package memory
 
-import (
-	"runtime"
-)
+import "runtime"
 
 type Snapshot struct {
 	Alloc      uint64

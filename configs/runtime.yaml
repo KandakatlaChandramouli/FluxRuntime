@@ -1,0 +1,5 @@
+workers: 16
+queue_capacity: 4096
+batch_size: 4096
+aggregation_lanes: 4
+soft_queue_limit: 2048
