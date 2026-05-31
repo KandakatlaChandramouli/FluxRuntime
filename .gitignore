@@ -1,39 +1,9 @@
-# Binaries
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
-*.test
-
-# Build
-bin/
-dist/
-
-# Profiles
-*.prof
-
-# Bench outputs
-*.out
-
-# Python
 venv/
+.venv/
 __pycache__/
 *.pyc
-
-# macOS
+node_modules/
 .DS_Store
-
-# IDE
-.vscode/
-.idea/
-
-# Logs
-*.log
-
-# Generated telemetry dumps
-telemetry.json
-
-# Temporary files
-tmp/
-temp/
+bin/
+dist/
+build/

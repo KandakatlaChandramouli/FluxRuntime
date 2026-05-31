@@ -1,0 +1,115 @@
+FAIL	github.com/research/phase1a/benchmarks/contention [setup failed]
+FAIL	github.com/research/phase1a/benchmarks/fairness [setup failed]
+FAIL	github.com/research/phase1a/benchmarks/latency [setup failed]
+FAIL	github.com/research/phase1a/benchmarks/memory [setup failed]
+FAIL	github.com/research/phase1a/benchmarks/saturation [setup failed]
+FAIL	github.com/research/phase1a/benchmarks/throughput [setup failed]
+FAIL	github.com/research/phase1a/evaluation/workloads [setup failed]
+FAIL	github.com/research/phase1a/runtime/admission [setup failed]
+FAIL	github.com/research/phase1a/runtime/aggregation [setup failed]
+FAIL	github.com/research/phase1a/runtime/dispatch [setup failed]
+FAIL	github.com/research/phase1a/runtime/queue [setup failed]
+FAIL	github.com/research/phase1a/runtime/scheduler [setup failed]
+FAIL	github.com/research/phase1a/runtime/worker [setup failed]
+FAIL	github.com/research/phase1a/telemetry/metrics [setup failed]
+FAIL	github.com/research/phase1a/telemetry/profiling [setup failed]
+FAIL	github.com/research/phase1a/telemetry/tracing [setup failed]
+goos: linux
+goarch: amd64
+pkg: github.com/research/phase1a/benchmarks/baselines
+cpu: AMD EPYC 7763 64-Core Processor                
+BenchmarkMutexQueue-4       	1000000000	         0.0000002 ns/op	       0 B/op	       0 allocs/op
+BenchmarkChannelQueue-4     	1000000000	         0.0000002 ns/op	       0 B/op	       0 allocs/op
+BenchmarkUnboundedQueue-4   	1000000000	         0.0000002 ns/op	       0 B/op	       0 allocs/op
+PASS
+ok  	github.com/research/phase1a/benchmarks/baselines	0.017s
+?   	github.com/research/phase1a/cmd/api	[no test files]
+?   	github.com/research/phase1a/internal/admission	[no test files]
+?   	github.com/research/phase1a/internal/admission/codel	[no test files]
+?   	github.com/research/phase1a/internal/admission/gradient	[no test files]
+?   	github.com/research/phase1a/internal/admission/red	[no test files]
+?   	github.com/research/phase1a/internal/baselines	[no test files]
+?   	github.com/research/phase1a/internal/baselines/channelqueue	[no test files]
+?   	github.com/research/phase1a/internal/baselines/mutexqueue	[no test files]
+?   	github.com/research/phase1a/internal/baselines/unboundedqueue	[no test files]
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/cache	0.003s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/contention	0.004s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/core	0.006s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/fairness	0.003s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/hotkey	0.004s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/latency	0.003s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/overload	0.004s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/scaling	0.004s
+PASS
+ok  	github.com/research/phase1a/internal/benchmarks/scheduler	0.005s
+?   	github.com/research/phase1a/internal/config	[no test files]
+goos: linux
+goarch: amd64
+pkg: github.com/research/phase1a/internal/evaluation
+cpu: AMD EPYC 7763 64-Core Processor                
+BenchmarkQueueComparisons/mutex_queue-4         	137044551	         9.009 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueComparisons/channel_queue-4       	100000000	        10.62 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueComparisons/unbounded_queue-4     	 6052317	       222.7 ns/op	     361 B/op	       0 allocs/op
+PASS
+ok  	github.com/research/phase1a/internal/evaluation	4.792s
+?   	github.com/research/phase1a/internal/evaluation/methodology	[no test files]
+?   	github.com/research/phase1a/internal/evaluation/reproducibility	[no test files]
+?   	github.com/research/phase1a/internal/evaluation/statistics	[no test files]
+PASS
+ok  	github.com/research/phase1a/internal/experiments/batching	0.004s
+PASS
+ok  	github.com/research/phase1a/internal/experiments/memory	0.005s
+PASS
+ok  	github.com/research/phase1a/internal/experiments/occupancy	0.003s
+PASS
+ok  	github.com/research/phase1a/internal/experiments/overload	0.004s
+PASS
+ok  	github.com/research/phase1a/internal/experiments/rejection	0.007s
+PASS
+ok  	github.com/research/phase1a/internal/experiments/scaling	0.004s
+PASS
+ok  	github.com/research/phase1a/internal/experiments/scheduler	0.004s
+?   	github.com/research/phase1a/internal/gen/ticket/v1	[no test files]
+?   	github.com/research/phase1a/internal/grpc	[no test files]
+?   	github.com/research/phase1a/internal/instrumentation/exporter	[no test files]
+?   	github.com/research/phase1a/internal/instrumentation/memory	[no test files]
+?   	github.com/research/phase1a/internal/instrumentation/residency	[no test files]
+?   	github.com/research/phase1a/internal/instrumentation/scheduler	[no test files]
+?   	github.com/research/phase1a/internal/inventory	[no test files]
+?   	github.com/research/phase1a/internal/metrics/exporter	[no test files]
+?   	github.com/research/phase1a/internal/metrics/snapshot	[no test files]
+?   	github.com/research/phase1a/internal/runtime/affinity	[no test files]
+?   	github.com/research/phase1a/internal/runtime/allocator	[no test files]
+?   	github.com/research/phase1a/internal/runtime/backpressure	[no test files]
+?   	github.com/research/phase1a/internal/runtime/cache	[no test files]
+?   	github.com/research/phase1a/internal/runtime/clock	[no test files]
+?   	github.com/research/phase1a/internal/runtime/coordination	[no test files]
+?   	github.com/research/phase1a/internal/runtime/fairness	[no test files]
+?   	github.com/research/phase1a/internal/runtime/loadshed	[no test files]
+?   	github.com/research/phase1a/internal/runtime/microbatch	[no test files]
+?   	github.com/research/phase1a/internal/runtime/pipeline	[no test files]
+?   	github.com/research/phase1a/internal/runtime/predictor	[no test files]
+?   	github.com/research/phase1a/internal/runtime/rebalancer	[no test files]
+?   	github.com/research/phase1a/internal/runtime/saturation	[no test files]
+?   	github.com/research/phase1a/internal/runtime/scheduler	[no test files]
+?   	github.com/research/phase1a/internal/runtime/spinwait	[no test files]
+?   	github.com/research/phase1a/internal/runtime/topology	[no test files]
+?   	github.com/research/phase1a/internal/runtime/worksteal	[no test files]
+?   	github.com/research/phase1a/internal/telemetry	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/collector	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/export	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/histogram	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/percentiles	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/prometheus	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/runtime	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/sampler	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/series	[no test files]
+?   	github.com/research/phase1a/internal/telemetry/stream	[no test files]
