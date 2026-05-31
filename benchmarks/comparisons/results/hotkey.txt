@@ -1,0 +1,7 @@
+goos: linux
+goarch: amd64
+pkg: github.com/research/phase1a/internal/workerpool
+cpu: AMD EPYC 7763 64-Core Processor                
+BenchmarkPressureHotKey-4   	 6936564	       170.9 ns/op	         0 completed	   6802642 dispatched	      4096 max_watermark	    133922 rejected	   6936564 shard_ingested	    133922 shard_rejected	       0 B/op	       0 allocs/op
+PASS
+ok  	github.com/research/phase1a/internal/workerpool	1.486s

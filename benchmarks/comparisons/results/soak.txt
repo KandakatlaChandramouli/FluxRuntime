@@ -1,0 +1,135 @@
+=== RUN   TestRuntimeSoak
+    soak_test.go:164: [LIVE] dispatched=15372503 completed=39988 rejected=14183262 queue_depth=21500
+    soak_test.go:174: [LATENCY] p50=498401786ns p95=925330559ns p99=965435947ns avg=44376390489798ns max=1780226794691560530ns avg_batch=21.72
+    soak_test.go:164: [LIVE] dispatched=30453877 completed=81076 rejected=27979714 queue_depth=12263
+    soak_test.go:174: [LATENCY] p50=999169886ns p95=1863338588ns p99=1951662791ns avg=21583444215796ns max=1780226794691560530ns avg_batch=14.99
+    soak_test.go:164: [LIVE] dispatched=46244227 completed=123700 rejected=42597774 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=1498370471ns p95=2711192664ns p99=2852953472ns avg=14363127960055ns max=1780226794691560530ns avg_batch=8.28
+    soak_test.go:164: [LIVE] dispatched=58872056 completed=163892 rejected=53991081 queue_depth=19930
+    soak_test.go:174: [LATENCY] p50=1943147045ns p95=3624669296ns p99=3785391061ns avg=10864060885466ns max=1780226794691560530ns avg_batch=2.08
+    soak_test.go:164: [LIVE] dispatched=71255731 completed=204980 rejected=65189861 queue_depth=4138
+    soak_test.go:174: [LATENCY] p50=2379706041ns p95=4530351166ns p99=4769719214ns avg=8687248543798ns max=1780226794691560530ns avg_batch=2.02
+    soak_test.go:164: [LIVE] dispatched=86488876 completed=247732 rejected=79420603 queue_depth=16327
+    soak_test.go:174: [LATENCY] p50=2872355800ns p95=5474586273ns p99=5711530414ns avg=7188973537334ns max=1780226794691560530ns avg_batch=2.42
+    soak_test.go:164: [LIVE] dispatched=101768768 completed=289588 rejected=93448133 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=3348033944ns p95=6380266871ns p99=6644502833ns avg=6150810732101ns max=1780226794691560530ns avg_batch=2.42
+    soak_test.go:164: [LIVE] dispatched=117473014 completed=329908 rejected=108010692 queue_depth=16384
+    soak_test.go:174: [LATENCY] p50=3856841698ns p95=7261814801ns p99=7618539058ns avg=5393693120097ns max=1780226794691560530ns avg_batch=2.40
+    soak_test.go:164: [LIVE] dispatched=132751138 completed=371252 rejected=122188222 queue_depth=16384
+    soak_test.go:174: [LATENCY] p50=4339084069ns p95=8226549470ns p99=8573256755ns avg=4776495252897ns max=1780226794691560530ns avg_batch=2.67
+    soak_test.go:164: [LIVE] dispatched=148318021 completed=417972 rejected=136325435 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=4860882570ns p95=9168058264ns p99=9535989718ns avg=4264049511362ns max=1780226794691560530ns avg_batch=2.56
+    soak_test.go:164: [LIVE] dispatched=162922186 completed=455476 rejected=150009568 queue_depth=11553
+    soak_test.go:174: [LATENCY] p50=5292166065ns p95=9937977648ns p99=10450300915ns avg=3913775394028ns max=1780226794691560530ns avg_batch=2.78
+    soak_test.go:164: [LIVE] dispatched=177565552 completed=495796 rejected=163137140 queue_depth=16391
+    soak_test.go:174: [LATENCY] p50=5775463887ns p95=10975847218ns p99=11437193888ns avg=3596391525792ns max=1780226794691560530ns avg_batch=2.75
+    soak_test.go:164: [LIVE] dispatched=192420739 completed=535604 rejected=176779978 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=6209965770ns p95=11873283436ns p99=12362694171ns avg=3329988974273ns max=1780226794691560530ns avg_batch=2.90
+    soak_test.go:164: [LIVE] dispatched=207429013 completed=578228 rejected=190760758 queue_depth=16396
+    soak_test.go:174: [LATENCY] p50=6676904826ns p95=12783424212ns p99=13316135691ns avg=3085474820964ns max=1780226794691560530ns avg_batch=2.94
+    soak_test.go:164: [LIVE] dispatched=222494125 completed=617780 rejected=204611169 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=7152462955ns p95=13667405386ns p99=14290572592ns avg=2888826320948ns max=1780226794691560530ns avg_batch=2.78
+    soak_test.go:164: [LIVE] dispatched=236514313 completed=656308 rejected=217531102 queue_depth=16392
+    soak_test.go:174: [LATENCY] p50=7619361459ns p95=14562856032ns p99=15252824534ns avg=2720116151636ns max=1780226794691560530ns avg_batch=2.67
+    soak_test.go:164: [LIVE] dispatched=251400606 completed=693172 rejected=231184452 queue_depth=20347
+    soak_test.go:174: [LATENCY] p50=8035230252ns p95=15448685731ns p99=16180860023ns avg=2576300174863ns max=1780226794691560530ns avg_batch=2.54
+    soak_test.go:164: [LIVE] dispatched=266749880 completed=732468 rejected=245439673 queue_depth=24557
+    soak_test.go:174: [LATENCY] p50=8486723533ns p95=16426530707ns p99=17135257087ns avg=2438142682960ns max=1780226794691560530ns avg_batch=2.66
+    soak_test.go:164: [LIVE] dispatched=281576365 completed=772404 rejected=259201643 queue_depth=20418
+    soak_test.go:174: [LATENCY] p50=8910803312ns p95=17378629851ns p99=18106962436ns avg=2313806302587ns max=1780226794691560530ns avg_batch=2.69
+    soak_test.go:164: [LIVE] dispatched=296922463 completed=814900 rejected=273405089 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=9375018716ns p95=18319767593ns p99=19030839362ns avg=2194108422541ns max=1780226794691560530ns avg_batch=2.79
+    soak_test.go:164: [LIVE] dispatched=311873291 completed=857652 rejected=286898670 queue_depth=28600
+    soak_test.go:174: [LATENCY] p50=9845526075ns p95=19261359455ns p99=20035175614ns avg=2085479645526ns max=1780226794691560530ns avg_batch=2.54
+    soak_test.go:164: [LIVE] dispatched=325806829 completed=896180 rejected=299713538 queue_depth=32523
+    soak_test.go:174: [LATENCY] p50=10355849868ns p95=20075412526ns p99=20931549732ns avg=1996955603353ns max=1780226794691560530ns avg_batch=2.49
+    soak_test.go:164: [LIVE] dispatched=340711264 completed=936116 rejected=313579227 queue_depth=16387
+    soak_test.go:174: [LATENCY] p50=10890976139ns p95=21003631217ns p99=21878889905ns avg=1912426681062ns max=1780226794691560530ns avg_batch=2.57
+    soak_test.go:164: [LIVE] dispatched=355131570 completed=977716 rejected=327003974 queue_depth=20478
+    soak_test.go:174: [LATENCY] p50=11359291332ns p95=21913642461ns p99=22868825067ns avg=1832265145888ns max=1780226794691560530ns avg_batch=2.68
+    soak_test.go:164: [LIVE] dispatched=370347803 completed=1016884 rejected=341122724 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=11871066695ns p95=22809285291ns p99=23755931941ns avg=1762377513614ns max=1780226794691560530ns avg_batch=2.67
+    soak_test.go:164: [LIVE] dispatched=384064174 completed=1055924 rejected=353736082 queue_depth=20500
+    soak_test.go:174: [LATENCY] p50=12297509697ns p95=23662707707ns p99=24740859864ns avg=1697727196892ns max=1780226794691560530ns avg_batch=2.72
+    soak_test.go:164: [LIVE] dispatched=399033344 completed=1097780 rejected=367566605 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=12771707925ns p95=24670288901ns p99=25700647473ns avg=1634552629695ns max=1780226794691560530ns avg_batch=2.72
+    soak_test.go:164: [LIVE] dispatched=413408391 completed=1136948 rejected=380769323 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=13221455837ns p95=25548074188ns p99=26656635715ns avg=1578803751842ns max=1780226794691560530ns avg_batch=2.76
+    soak_test.go:164: [LIVE] dispatched=428245392 completed=1177652 rejected=394586997 queue_depth=20489
+    soak_test.go:174: [LATENCY] p50=13705087320ns p95=26459830247ns p99=27597869960ns avg=1525355873265ns max=1780226794691560530ns avg_batch=2.85
+    soak_test.go:164: [LIVE] dispatched=443311344 completed=1215668 rejected=408643195 queue_depth=24576
+    soak_test.go:174: [LATENCY] p50=14182585583ns p95=27356319360ns p99=28576212348ns avg=1478701366165ns max=1780226794691560530ns avg_batch=2.91
+    soak_test.go:164: [LIVE] dispatched=459178926 completed=1256628 rejected=423399053 queue_depth=24576
+    soak_test.go:174: [LATENCY] p50=14671317169ns p95=28338531408ns p99=29486740643ns avg=1431458265602ns max=1780226794691560530ns avg_batch=2.97
+    soak_test.go:164: [LIVE] dispatched=472997013 completed=1291316 rejected=436057961 queue_depth=16398
+    soak_test.go:174: [LATENCY] p50=15127405662ns p95=29109308875ns p99=30455463539ns avg=1393820817388ns max=1780226794691560530ns avg_batch=2.83
+    soak_test.go:164: [LIVE] dispatched=487457853 completed=1327668 rejected=449401751 queue_depth=16384
+    soak_test.go:174: [LATENCY] p50=15604562483ns p95=30076703500ns p99=31439714866ns avg=1354047938964ns max=1780226794691560530ns avg_batch=2.86
+    soak_test.go:164: [LIVE] dispatched=501879331 completed=1370548 rejected=462785375 queue_depth=16383
+    soak_test.go:174: [LATENCY] p50=16153186947ns p95=31040979635ns p99=32387914207ns avg=1315080089955ns max=1780226794691560530ns avg_batch=2.88
+    soak_test.go:164: [LIVE] dispatched=517010270 completed=1409716 rejected=476727337 queue_depth=16384
+    soak_test.go:174: [LATENCY] p50=16659979551ns p95=31982689778ns p99=33375030446ns avg=1279464820209ns max=1780226794691560530ns avg_batch=2.88
+    soak_test.go:164: [LIVE] dispatched=530201668 completed=1448244 rejected=488982137 queue_depth=10536
+    soak_test.go:174: [LATENCY] p50=17104945564ns p95=32872531069ns p99=34345120690ns avg=1246229444105ns max=1780226794691560530ns avg_batch=2.96
+    soak_test.go:164: [LIVE] dispatched=545021336 completed=1488820 rejected=502577967 queue_depth=20224
+    soak_test.go:174: [LATENCY] p50=17643180207ns p95=33824321864ns p99=35279761202ns avg=1213124664858ns max=1780226794691560530ns avg_batch=3.00
+    soak_test.go:164: [LIVE] dispatched=559689823 completed=1529524 rejected=516213040 queue_depth=16384
+    soak_test.go:174: [LATENCY] p50=18102274544ns p95=34809067096ns p99=36245292574ns avg=1181999180571ns max=1780226794691560530ns avg_batch=3.05
+    soak_test.go:164: [LIVE] dispatched=573763182 completed=1568052 rejected=529247684 queue_depth=16392
+    soak_test.go:174: [LATENCY] p50=18542359180ns p95=35689266183ns p99=37203072953ns avg=1152866569055ns max=1780226794691560530ns avg_batch=3.04
+    soak_test.go:164: [LIVE] dispatched=588599291 completed=1611444 rejected=543079782 queue_depth=16393
+    soak_test.go:174: [LATENCY] p50=19008000195ns p95=36683679656ns p99=38153166093ns avg=1123562791069ns max=1780226794691560530ns avg_batch=3.12
+    soak_test.go:164: [LIVE] dispatched=603086297 completed=1652276 rejected=556637117 queue_depth=24512
+    soak_test.go:174: [LATENCY] p50=19570890122ns p95=37589840448ns p99=39167220181ns avg=1096522325100ns max=1780226794691560530ns avg_batch=3.20
+    soak_test.go:164: [LIVE] dispatched=617746749 completed=1692212 rejected=570281631 queue_depth=20479
+    soak_test.go:174: [LATENCY] p50=19949156832ns p95=38448902144ns p99=40064743754ns avg=1072068181190ns max=1780226794691560530ns avg_batch=3.25
+    soak_test.go:164: [LIVE] dispatched=632624075 completed=1729332 rejected=584172011 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=20380081607ns p95=39311487077ns p99=40981179665ns avg=1049561755867ns max=1780226794691560530ns avg_batch=3.32
+    soak_test.go:164: [LIVE] dispatched=646471233 completed=1769268 rejected=597016745 queue_depth=20492
+    soak_test.go:174: [LATENCY] p50=20872247467ns p95=40209765932ns p99=41951824989ns avg=1026967449827ns max=1780226794691560530ns avg_batch=3.39
+    soak_test.go:164: [LIVE] dispatched=660026391 completed=1808180 rejected=609295038 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=21320953364ns p95=41107541276ns p99=42943153320ns avg=1005863275007ns max=1780226794691560530ns avg_batch=3.38
+    soak_test.go:164: [LIVE] dispatched=673545799 completed=1846452 rejected=621799459 queue_depth=12288
+    soak_test.go:174: [LATENCY] p50=21779575937ns p95=42014894074ns p99=43934799809ns avg=985731445498ns max=1780226794691560530ns avg_batch=3.37
+    soak_test.go:164: [LIVE] dispatched=688280520 completed=1885620 rejected=635475989 queue_depth=16384
+    soak_test.go:174: [LATENCY] p50=22273910829ns p95=42965202482ns p99=44828234068ns avg=966506208633ns max=1780226794691560530ns avg_batch=3.42
+    soak_test.go:164: [LIVE] dispatched=703250994 completed=1925300 rejected=649490153 queue_depth=24576
+    soak_test.go:174: [LATENCY] p50=22724996500ns p95=43940778499ns p99=45502457004ns avg=947466057070ns max=1780226794691560530ns avg_batch=3.49
+    soak_test.go:164: [LIVE] dispatched=716505202 completed=1962932 rejected=661659638 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=23163407936ns p95=44790058604ns p99=46029198959ns avg=930238688734ns max=1780226794691560530ns avg_batch=3.50
+    soak_test.go:164: [LIVE] dispatched=730806152 completed=2001588 rejected=674575635 queue_depth=20352
+    soak_test.go:174: [LATENCY] p50=23594600494ns p95=45351101532ns p99=46262166684ns avg=913105387100ns max=1780226794691560530ns avg_batch=3.44
+    soak_test.go:164: [LIVE] dispatched=745300771 completed=2041908 rejected=687839319 queue_depth=28541
+    soak_test.go:174: [LATENCY] p50=24130031548ns p95=45507796368ns p99=46293146231ns avg=895984773124ns max=1780226794691560530ns avg_batch=3.34
+    soak_test.go:164: [LIVE] dispatched=760620416 completed=2084404 rejected=702102984 queue_depth=24617
+    soak_test.go:174: [LATENCY] p50=24652826274ns p95=45679352861ns p99=46348481946ns avg=878707672579ns max=1780226794691560530ns avg_batch=3.41
+    soak_test.go:164: [LIVE] dispatched=774302867 completed=2119988 rejected=714857766 queue_depth=20592
+    soak_test.go:174: [LATENCY] p50=25065799919ns p95=46000514489ns p99=46979759100ns avg=864732774275ns max=1780226794691560530ns avg_batch=3.45
+    soak_test.go:164: [LIVE] dispatched=788625534 completed=2158132 rejected=728055436 queue_depth=16384
+    soak_test.go:174: [LATENCY] p50=25548074488ns p95=46073971491ns p99=47059659112ns avg=849311878978ns max=1780226794691560530ns avg_batch=3.48
+    soak_test.go:164: [LIVE] dispatched=802369965 completed=2198836 rejected=740628653 queue_depth=16000
+    soak_test.go:174: [LATENCY] p50=26007785172ns p95=46112011694ns p99=47131350261ns avg=835379525061ns max=1780226794691560530ns avg_batch=3.39
+    soak_test.go:164: [LIVE] dispatched=817243883 completed=2238644 rejected=754606651 queue_depth=20480
+    soak_test.go:174: [LATENCY] p50=26486004450ns p95=46178657710ns p99=47162694728ns avg=821347982015ns max=1780226794691560530ns avg_batch=3.44
+    soak_test.go:164: [LIVE] dispatched=830744901 completed=2279092 rejected=766969570 queue_depth=20104
+    soak_test.go:174: [LATENCY] p50=26993854217ns p95=46245501126ns p99=47166112321ns avg=807464975598ns max=1780226794691560530ns avg_batch=3.42
+    soak_test.go:164: [LIVE] dispatched=845051236 completed=2313908 rejected=780339126 queue_depth=28544
+    soak_test.go:174: [LATENCY] p50=27403867353ns p95=46301697011ns p99=47188474567ns avg=795559729596ns max=1780226794691560530ns avg_batch=3.43
+    soak_test.go:164: [LIVE] dispatched=859462201 completed=2352820 rejected=793960980 queue_depth=16384
+    soak_test.go:174: [LATENCY] p50=27860140951ns p95=46416459864ns p99=47216222130ns avg=783659185770ns max=1780226794691560530ns avg_batch=3.48
+    soak_test.go:164: [LIVE] dispatched=873376833 completed=2390708 rejected=806919984 queue_depth=12919
+    soak_test.go:174: [LATENCY] p50=28374168525ns p95=46516516113ns p99=47238057334ns avg=772056656967ns max=1780226794691560530ns avg_batch=3.50
+    soak_test.go:128: ========================================
+    soak_test.go:129: Runtime Soak Test Results
+    soak_test.go:130: ========================================
+    soak_test.go:132: duration_sec      : 60.37
+    soak_test.go:133: total_dispatched  : 873959266
+    soak_test.go:134: total_completed   : 2415796
+    soak_test.go:135: total_rejected    : 807442660
+    soak_test.go:137: throughput_reqsec : 14477462.95
+    soak_test.go:142: rejection_rate    : 0.9239
+    soak_test.go:147: queue_capacity    : 4096
+    soak_test.go:152: ========================================
+--- PASS: TestRuntimeSoak (60.37s)
+PASS
+ok  	github.com/research/phase1a/internal/workerpool	60.388s

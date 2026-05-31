@@ -1,0 +1,9 @@
+goos: linux
+goarch: amd64
+pkg: github.com/research/phase1a/internal/evaluation
+cpu: AMD EPYC 7763 64-Core Processor                
+BenchmarkQueueComparisons/mutex_queue-4         	139689807	         8.532 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueComparisons/channel_queue-4       	100000000	        10.52 ns/op	       0 B/op	       0 allocs/op
+BenchmarkQueueComparisons/unbounded_queue-4     	 5782034	       341.9 ns/op	     333 B/op	       0 allocs/op
+PASS
+ok  	github.com/research/phase1a/internal/evaluation	6.513s
